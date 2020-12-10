@@ -62,7 +62,7 @@ on('ready', () => {
         if (rng[1]){
           multiWeight = arr.slice(rng[0]-1,rng[1]-1);
         } else {
-          multiWeight = arr.slice(rng[0]-1, rng[0]+1);
+          multiWeight = arr.slice(rng[0]-1, rng[0]);
         }
       } else {
         if (rng[1]){

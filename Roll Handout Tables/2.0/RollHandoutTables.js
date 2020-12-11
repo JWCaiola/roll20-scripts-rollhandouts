@@ -205,6 +205,10 @@ const PlaceTableLink = (txt) => {
       .replace(/Clan's_Notable_Trait/,handoutName + '_Notable_Trait')
       .replace(/Random/i,'Rndm')
       .replace(/_Tables/i,'')
+      .replace(/Major_Beneficial_Property_error/i,'Minor_Detrimental_Property')
+      .replace(/Minor_Beneficial_Properties_error/i,'Major_Beneficial_Property')
+      .replace(/Artifacts_death_slaad/i,'Major_Detrimental_Property')
+      .replace(/(Creator)_or_Intended_User/i,'$1')
       .replace(/^(\w+?)_(\1)/i,'$2');
       return str;
     };
@@ -419,13 +423,13 @@ const PlaceTableLink = (txt) => {
           newTableName = altHdr;
         }
       }
-      if (!newTableName.length || handoutTblNames.includes(newTableName)) {
-        backupName = TxtCleaner(backupName);
-        newTableName = `${handoutName}_${backupName}`;
+      if (handoutTblNames.includes(newTableName)) {
+        newTableName = `${newTableName}_error`;
         bool_handoutUsed = true;
       }
-      if (handoutTblNames.includes(newTableName)) {
-        newTableName = `${handoutName}_error`;
+      if (!newTableName.length || handoutTblNames.includes(newTableName) || newTableName.split('_').length > 4) {
+        backupName = TxtCleaner(backupName);
+        newTableName = `${handoutName}_${backupName}`;
         bool_handoutUsed = true;
       }
       if (newTableName.split('_').length < 3 && !bool_handoutUsed) {

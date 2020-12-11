@@ -17,6 +17,8 @@ on('ready', () => {
     */
     const leftBracket = '[[';
     const rightBracket = ']]';
+    const re_Lower = /^(\d+?) or lower$/i;
+    const re_Higher = /^(\d+?) or higher$/i;
     const re_bold = /<(strong|b)>.+?<(\/\1)>/gsmi;
     const re_findRoll = /<roll.+?<\/roll/gmis;
     const re_dash = /[-–]/;
@@ -26,7 +28,7 @@ on('ready', () => {
     const re_spaceReplace = /&nbsp;/gs;
     const re_tableRow = /<(thead|tr)>.+?<\/(thead|tr)>/gmis;
     const re_tableCell = /<t(h|d)>.+?<\/t(h|d)>/gmis;
-    const re_taggingTables = /<table>(((?!<table>).)*(>\d*d\d+?(\/d\d+?)*)<.+?)<\/table>/gmis;
+    const re_taggingTables = /<table>(((?!<table>).)*(>\d*d\d+?(\/d\d+?|\s*\+\s*\w+?)*)<.+?)<\/table>/gmis;
     const strip = /<[^>]*>/g;
     /*
       Dice related Regex
@@ -226,6 +228,17 @@ const PlaceTableLink = (txt) => {
         }
         let args = [itemWeight, parseInt(range[0]), parseInt(range[1])];
         return args;
+      } else {
+        if (re_Lower.test(data)){
+          let upper = parseInt(data.match(/\d+?/)[0]);
+          itemWeight = (upper - 1);
+          let args = [itemWeight, 1, upper];
+        }
+        if(re_Higher.test(data)){
+          let lower = parseInt(data.match(/\d+?/)[0]);
+          itemWeight = (100 - lower);
+          let args = [itemWeight, lower, 100];
+        }
       }
     };
     const GetTables = (element) => {

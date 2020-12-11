@@ -232,7 +232,7 @@ const PlaceTableLink = (txt) => {
       let htmlTable = element.match(re_findRoll)[0];
       return htmlTable;
     };
-    const HandleEachRow = (dieToRoll, obj) => {
+    const HandleOneDie = (dieToRoll, obj) => {
       let tableItems = [];
       for (let i = 0, j = obj.length; i < j; i++) {
         let objRow = obj[i];
@@ -350,14 +350,20 @@ const PlaceTableLink = (txt) => {
     };
     const RangeChecker = (obj) => {
       /*
-      Fails if there are multiple ranges and all columns contain numbers
-      No reports yet of a table that meets that criteria
+        Fails if there are multiple ranges and all columns contain numbers
+        No reports yet of a table that meets that criteria
       */
       let columnPoints = [];
       let newObj = obj;
       for (let x = 0, y = obj[1].length; x < y; x++) {
         if (re_range.test(obj[1][x]) && !re_range.test(obj[1][x-1])) {
           columnPoints.push(x);
+        } else {
+          if (obj[10]){
+            if (re_range.test(obj[10][x]) && !re_range.test(obj[10][x-1])) {
+              columnPoints.push(x);
+            }
+          }
         }
       }
       if (columnPoints.length > 1) {
@@ -392,13 +398,13 @@ const PlaceTableLink = (txt) => {
         tblDie = ele.match(re_DR_TwoDice)[0].split('/');
         tblDie = tblDie[0];
         let tblDieB = tblDie[1];
-        return HandleEachRow([tblDie, tblDieB], obj);
+        return HandleOneDie([tblDie, tblDieB], obj);
         case re_DR_Add.test(ele):
         tblDie = ele.match(re_DR_Add).split('+');
-        return HandleEachRow([tblDie], obj);
+        return HandleOneDie([tblDie], obj);
         case re_DR_OneDice.test(ele):
         tblDie = ele.match(re_DR_OneDice)[0];
-        return HandleEachRow([tblDie], obj);
+        return HandleOneDie([tblDie], obj);
         default:
         return false;
       }

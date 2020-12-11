@@ -98,11 +98,14 @@ on('ready', () => {
       if (txt.includes(handoutTblNames[i])){return resetTxt;}
       for (let i = 0, j = cnt; i < j; i++) {
         let name = handoutTblNames[i];
-        let links = BuildTableLink(name);
+        let links;
+        if (name != '<@>') {
+          links = BuildTableLink(name);
+        } else {
+          links = '';
+        }
         if (!txt.includes(name)) {
           txt = txt.replace(/<!>/, links);
-        } else {
-          return txt = resetTxt;
         }
       }
       return txt;
@@ -130,7 +133,7 @@ on('ready', () => {
         }
         let name = ele.Name;
         let newTable;
-        if (name) {
+        if (name && name != '<@>') {
           newTable = createObj('rollabletable', {
             name: name
           });
@@ -145,8 +148,6 @@ on('ready', () => {
           } else {
             log('error processing table - no ranges found for table in: ' + rawHandoutName);
           }
-        } else {
-          log(`error processing ${rawHandoutName}`)
         }
         l++;
       });
@@ -182,29 +183,34 @@ on('ready', () => {
       return objTable;
     };
     const ConstructTableObject = (name, items) => {
+      if (items == undefined){
+        name = '<@>';
+        items = 'error';
+    }
       let newTbl = new TableConstructor(name, items);
       tbls.push(newTbl);
       handoutTblNames.push(newTbl.Name);
       return tbls;
     };
     const FinalNameCleaner = (str) => {
-      str = str.replace(/^\d\._/,'');
-      str = str.replace(/_Complications|_and_Appointments/,'');
-      str = str.replace(/Sentient_Magic_Items/,'Sentient_Item');
-      str = str.replace(/Personal_Decisions*/,'Motivation');
-      str = str.replace(/Adventurer_Story/,'Story');
-      str = str.replace(/Downtime_Activities/, 'Downtime');
-      str = str.replace(/Treasure_Challenge/,'Treasure');
-      str = str.replace(/Hoard_Challenge/, 'Hoard');
-      str = str.replace(/Attitude_and_Race/,'Ship_Attitude');
-      str = str.replace(/Encounters*/, 'Enctr');
-      str = str.replace(/Dungeons*/gi,'Dungeon');
-      str = str.replace(/Levels*/, 'Lvl');
-      str = str.replace(/Clan's_Notable_Trait/,handoutName + '_Notable_Trait');
-      str = str.replace(/Purpose_of_Raid/i,handoutName + '_Raid_Purpose');
-      str = str.replace(/tables_/i,'');
-      str = str.replace(/Random/i,'Rndm');
-      str = str.replace(/^(\w+?)_(\1)/i,'$2');
+      str = str.replace(/^\d\._/,'')
+      .replace(/_Complications|_and_Appointments/,'')
+      .replace(/Sentient_Magic_Items/,'Sentient_Item')
+      .replace(/Personal_Decisions*/,'Motivation')
+      .replace(/Adventurer_Story/,'Story')
+      .replace(/Downtime_Activities/, 'Downtime')
+      .replace(/Treasure_Challenge/,'Treasure')
+      .replace(/Hoard_Challenge/, 'Hoard')
+      .replace(/Attitude_and_Race/,'Ship_Attitude')
+      .replace(/Encounters*/, 'Enctr')
+      .replace(/Dungeons*/gi,'Dungeon')
+      .replace(/Levels*/, 'Lvl')
+      .replace(/^(Purpose_)/,handoutName + '_$1')
+      .replace(/Clan's_Notable_Trait/,handoutName + '_Notable_Trait')
+      .replace(/Purpose_of_Raid/i,handoutName + '_Raid_Purpose')
+      .replace(/tables_/i,'')
+      .replace(/Random/i,'Rndm')
+      .replace(/^(\w+?)_(\1)/i,'$2')
       return str;
     };
     const GetWeight = (data) => {

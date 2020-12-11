@@ -182,11 +182,7 @@ on('ready', () => {
       return objTable;
     };
     const ConstructTableObject = (name, items) => {
-      let newTbl
-      if (items == undefined){
-        return;
-      }
-      newTbl = new TableConstructor(name, items);
+      let newTbl = new TableConstructor(name, items);
       tbls.push(newTbl);
       handoutTblNames.push(newTbl.Name);
       return tbls;
@@ -231,9 +227,14 @@ on('ready', () => {
       return htmlTable;
     };
     const HandleEachRow = (dieToRoll, obj) => {
-      for (let i = 1, j = obj.length; i < j; i++) {
+      for (let i = 0, j = obj.length; i < j; i++) {
         let objRow = obj[i];
         if (re_anyDice.test(objRow[0])) {
+          if (objRow[0] != '') {
+            backupName = SetBackupName(objRow);
+          } else {
+            backupName = SetBackupName(obj[i+1]);
+          }
           continue;
         }
         let itemWeight;
@@ -251,12 +252,6 @@ on('ready', () => {
         // Write item description from html row
         if (i > 0) {
           PushItem(objRow, tableItems, itemWeight);
-        } else {
-          if (objRow[0] != '') {
-            backupName = SetBackupName(objRow);
-          } else {
-            backupName = SetBackupName(obj[i+1]);
-          }
         }
       }
       tableItems = tableItems.filter(ele => {
@@ -269,7 +264,7 @@ on('ready', () => {
     const HandleMultiDice = (dieToRoll, obj) => {
       let index = diceIndexArr.indexOf(dieToRoll);
       let diceWeight = diceWeightArr[index];
-      for (let i = 1, j = obj.length; i < j; i++) {
+      for (let i = 0, j = obj.length; i < j; i++) {
         let objRow = obj[i];
         if (re_anyDice.test(objRow[0])) {
           continue;
@@ -282,7 +277,6 @@ on('ready', () => {
           // Double Dice Handling
         } else {
           itemWeight = 1;
-          log('error getting item weight for: ' + obj);
         }
         // Write item description from html row
         if (i > 0) {
@@ -303,7 +297,6 @@ on('ready', () => {
       return tableItems;
     };
     const HandleTwoDice = (dieToRoll, obj, max) => {
-      log('building second table for: ' + handoutName);
       let altName;
       for (let x = 0; x < j; x++) {
         altRng = GetWeight(obj[x][0]);
@@ -404,12 +397,11 @@ on('ready', () => {
         return false;
       }
     };
-    const TableNaming = (element) => {
+    const TableNaming = (element, lastResort) => {
       let hdrs = element.match(re_Header);
       let bool_handoutUsed = false;
-      let randomID = Math.floor(Math.random() * 999);
       if ((/Names/i).test(handoutName)){handoutName ='';}
-      if (backupName == ''){backupName = randomID.toString()}
+      if (backupName == ''){backupName = 'error';}
       if (hdrs) {
         let lastHdr = hdrs[hdrs.length-1].replace(strip,'');
         if (lastHdr) {

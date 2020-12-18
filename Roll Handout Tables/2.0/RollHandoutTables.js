@@ -98,7 +98,10 @@ on('ready', () => {
       let cnt = txt.match(/<!>/gmi);
       if (cnt){cnt = cnt.length;}
       for (let i = 0, j = cnt; i < j; i++) {
-        if (txt.includes(handoutTblNames[i])){continue;}
+        if (txt.includes(handoutTblNames[i])){
+          txt = txt.replace(/<!>/g,'');
+          break;
+        }
         let name = handoutTblNames[i];
         let links;
         if (name != '<@>') {
@@ -371,6 +374,14 @@ on('ready', () => {
             }
             ConstructTableObject(altName, altTableItems);
           };
+          const HeaderCheck = (element, index) => {
+            if (Check(element, index) == false) return headerOverride = true;
+          }
+          const Check = (element, index) => {
+            if(!element.match(re_Header)){
+              return false;
+            }
+          };
           const ParseSections = (element, index, array) => {
             let tableItems = [];
             let htmlTable = GetTables(element); // returns a rollable html Table
@@ -469,7 +480,6 @@ on('ready', () => {
                   if(!handoutTblNames.includes(lastHdr)){
                     lastHdr = TxtCleaner(lastHdr);
                     newTableName = lastHdr;
-                    log(newTableName + ': 1')
                   }
                 }
               } else {
@@ -516,12 +526,10 @@ on('ready', () => {
             tempNotes = tempNotes.replace(re_taggingTables, '<!><roll>$1</roll>');
             let allHdrs = tempNotes.match(re_Header);
             let sections = tempNotes.match(re_sectByRollable);
-            if (sections && allHdrs) {
-              if (sections.length >= allHdrs.length) {
-                headerOverride = true;
-              }
+            if (sections) {
+              sections.forEach(HeaderCheck);
+              sections.forEach(ParseSections);
             }
-            if (sections) sections.forEach(ParseSections);
             WriteRollableTable();
             tempNotes = tempNotes.replace(/<roll>/gmi,`<table>`).replace(/<\/roll>/gmi, `</table>`);
             tempNotes = PlaceTableLink(tempNotes);
@@ -576,7 +584,7 @@ on('ready', () => {
         return;
       }
       ToggleLinks(msg.content.replace(command,'$1'));
-  }); 
+  });
 
     if('undefined' === typeof RecursiveTable){
         setTimeout(()=>sendChat('Roll Handout Tables',`/w gm <div style="background:#ff9999;padding:.5em;border:3px solid darkred;border-radius:1em;line-height:1em;color:darkred;"><b>Roll Handout Tables</b> requires the script RecursiveTable, which can be installed from the 1-Click Script Library.</div>`),1000);
